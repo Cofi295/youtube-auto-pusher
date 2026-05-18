@@ -1,6 +1,6 @@
 ﻿# YouTube Auto Pusher V1.0
 
-Tu dong dang video YouTube da kenh - by OSN OCIF
+Tu dong dang video YouTube da kenh - by Cofi
 
 ## Download
 
