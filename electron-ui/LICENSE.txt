@@ -1,0 +1,33 @@
+=======================================================
+        YouTube Auto Pusher V1.0 -- by OSN OCIF
+=======================================================
+
+END USER LICENSE AGREEMENT
+
+1. ACCEPTANCE
+   By installing and using this software, you agree to the
+   terms below.
+
+2. LICENSE
+   This software is licensed for use only. You may not
+   resell, redistribute, or modify it without the author's
+   permission.
+
+3. SYSTEM REQUIREMENTS
+   - Windows 10/11 64-bit
+   - Google Chrome (for YouTube authentication)
+   - Internet connection
+
+4. DISCLAIMER
+   This software is provided "as is". The author assumes no
+   responsibility for any damages arising from its use.
+
+5. COPYRIGHT
+   Copyright (c) 2026 OSN OCIF. All rights reserved.
+
+6. CONTACT
+   For support, contact the author via Telegram.
+
+-------------------------------------------------------
+By clicking "I Agree", you confirm that you have read
+and accept the above terms.

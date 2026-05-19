@@ -1,0 +1,8 @@
+flet>=0.21.0
+peewee>=3.17.0
+google-api-python-client>=2.118.0
+google-auth-oauthlib>=1.2.0
+apscheduler>=3.10.4
+python-telegram-bot>=21.0
+python-dotenv>=1.0.0
+pytz>=2024.1
