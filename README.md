@@ -1,6 +1,6 @@
 # 🚀 YouTube Auto Pusher V1.0
 
-> **Tự động đăng video lên YouTube đa kênh — by OSN OCIF**
+> **Tự động đăng video lên YouTube đa kênh
 
 [![Download](https://img.shields.io/badge/Download-Latest-blue)](https://github.com/Cofi295/youtube-auto-pusher/releases/latest)
 [![Version](https://img.shields.io/badge/version-1.0.0-green)](https://github.com/Cofi295/youtube-auto-pusher/releases)
@@ -192,4 +192,4 @@ A: Sau khi chọn kênh mới từ dropdown, các video thêm SAU ĐÓ mới đ�
 
 ## 📄 License
 
-Copyright © 2026 OSN OCIF. All rights reserved.
+Copyright © 2026 All rights reserved.
