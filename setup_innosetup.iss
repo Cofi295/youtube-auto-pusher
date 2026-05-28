@@ -56,9 +56,19 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilen
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent
 
+[InstallDelete]
+; Xóa database cũ khi cài đè để tránh lẫn profile cũ từ bản trước
+Type: files; Name: "{app}\openclaw_bridge.db"
+Type: files; Name: "{app}\openclaw_bridge.db-shm"
+Type: files; Name: "{app}\openclaw_bridge.db-wal"
+
 [UninstallDelete]
-Type: filesandordirs; Name: "{app}\data"
+Type: filesandordirs; Name: "{app}\profiles"
 Type: filesandordirs; Name: "{app}\cache"
+Type: filesandordirs; Name: "{app}\tokens"
+Type: files; Name: "{app}\openclaw_bridge.db"
+Type: files; Name: "{app}\openclaw_bridge.db-shm"
+Type: files; Name: "{app}\openclaw_bridge.db-wal"
 
 [Code]
 function InitializeSetup: Boolean;

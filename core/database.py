@@ -32,9 +32,16 @@ from peewee import (
 
 # Data directory. In dev, use project root.
 # In packaged PyInstaller builds, use the EXE's own directory.
+# If inside Electron bundle (resources/backend/api_server.exe),
+# use the Electron app root so data lives alongside the main EXE.
 # The YTAP_DATA_DIR env var can always override both.
 if getattr(sys, 'frozen', False):
-    _default_dir = Path(sys.executable).resolve().parent
+    exe_dir = Path(sys.executable).resolve().parent
+    # Electron bundle: resources/backend/api_server.exe → go up to app root
+    if exe_dir.name == "backend" and exe_dir.parent.name == "resources":
+        _default_dir = exe_dir.parent.parent
+    else:
+        _default_dir = exe_dir
 else:
     _default_dir = Path(__file__).resolve().parent.parent
 BASE_DIR = Path(os.environ.get("YTAP_DATA_DIR", _default_dir))
