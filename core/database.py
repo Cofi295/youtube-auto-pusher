@@ -177,7 +177,7 @@ class Profile(BaseModel):
         if extra:
             data.update(extra)
         self.profile_config_path.parent.mkdir(parents=True, exist_ok=True)
-        self.profile_config_path.write_text(_json.dumps(data, indent=2, ensure_ascii=False))
+        self.profile_config_path.write_text(_json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
 
     def __str__(self):
         return f"Profile(id={self.id}, name={self.name})"
@@ -385,7 +385,7 @@ class DatabaseManager:
                     import json as _json, urllib.request
                     tp = Path(profile.token_path)
                     if tp.exists():
-                        token_data = _json.loads(tp.read_text())
+                        token_data = _json.loads(tp.read_text(encoding="utf-8"))
                         refresh_token = token_data.get("refresh_token", "")
                         if refresh_token:
                             data = urllib.parse.urlencode({"token": refresh_token}).encode()

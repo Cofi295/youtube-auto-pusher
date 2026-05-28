@@ -5,11 +5,36 @@ Keeps the existing Python core intact and exposes a small localhost JSON API.
 
 from __future__ import annotations
 
+# ── UTF-8 bootstrap: must run before ANY other import that may print ──
+import io as _io
+import os
+import sys
+
+os.environ.setdefault("PYTHONIOENCODING", "utf-8:replace")
+os.environ.setdefault("PYTHONUTF8", "1")
+
+def _force_utf8_streams():
+    for _attr in ("stdout", "stderr"):
+        _stream = getattr(sys, _attr, None)
+        if _stream is None:
+            continue
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            try:
+                _buf = getattr(_stream, "buffer", None)
+                if _buf:
+                    setattr(sys, _attr, _io.TextIOWrapper(
+                        _buf, encoding="utf-8", errors="replace", line_buffering=True))
+            except Exception:
+                pass
+
+_force_utf8_streams()
+# ── end UTF-8 bootstrap ──
+
 import argparse
 import datetime as dt
 import json
-import os
-import sys
 import threading
 import traceback
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -35,12 +60,6 @@ from core.youtube_worker import (
     YouTubeWorker,
     delete_cache_best_effort,
 )
-
-try:
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
-except Exception:
-    pass
 
 BASE_DIR = Path(os.environ.get("YTAP_DATA_DIR", Path(__file__).resolve().parent))
 BASE_DIR.mkdir(parents=True, exist_ok=True)
@@ -356,7 +375,10 @@ class ApiHandler(BaseHTTPRequestHandler):
                 return
             self._error(404, "Not found")
         except Exception as exc:
-            traceback.print_exc()
+            try:
+                traceback.print_exc()
+            except Exception:
+                pass
             self._error(500, exc)
 
     def do_POST(self):
@@ -474,7 +496,10 @@ class ApiHandler(BaseHTTPRequestHandler):
                 return
             self._error(404, "Not found")
         except Exception as exc:
-            traceback.print_exc()
+            try:
+                traceback.print_exc()
+            except Exception:
+                pass
             self._error(500, exc)
 
     def do_PUT(self):
@@ -512,7 +537,10 @@ class ApiHandler(BaseHTTPRequestHandler):
                 return
             self._error(404, "Not found")
         except Exception as exc:
-            traceback.print_exc()
+            try:
+                traceback.print_exc()
+            except Exception:
+                pass
             self._error(500, exc)
 
     def do_DELETE(self):
@@ -541,7 +569,10 @@ class ApiHandler(BaseHTTPRequestHandler):
                 return
             self._error(404, "Not found")
         except Exception as exc:
-            traceback.print_exc()
+            try:
+                traceback.print_exc()
+            except Exception:
+                pass
             self._error(500, exc)
 
 

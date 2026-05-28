@@ -76,12 +76,49 @@ async function loadProfiles() {
   if (state.activeTab !== 'channels') return;
   try {
     const data = await api('/profiles');
-    state.profiles = data.profiles || [];
+    const fresh = data.profiles || [];
+    // Detect if profiles were added or removed
+    const oldIds = state.profiles.map(p => p.id).join(',');
+    const newIds = fresh.map(p => p.id).join(',');
+    const structureChanged = oldIds !== newIds;
+    state.profiles = fresh;
     $('apiStatus').textContent = 'Đã kết nối';
     $('apiStatus').className = 'status-indicator ok';
-    renderProfiles();
+    const modalOpen = !$('profileModal').classList.contains('hidden');
+    if (modalOpen || !structureChanged) {
+      // Lightweight patch: only update badges + stats, never rebuild DOM
+      patchProfileCards();
+    } else {
+      // Full rebuild only when profile list structure changes (add/delete)
+      renderProfiles();
+    }
   } catch (err) {
-      }
+  }
+}
+// Surgical DOM update — only touches badges and stats numbers, never freezes input
+function patchProfileCards() {
+  const root = $('profiles');
+  if (!root) return;
+  // If cards not rendered yet, do full render
+  if (!root.querySelector('[data-pid]')) { renderProfiles(); return; }
+  state.profiles.forEach(p => {
+    const card = root.querySelector(`[data-pid="${p.id}"]`);
+    if (!card) return;
+    const s = p.stats || {};
+    const badgesEl = card.querySelector('.card-badges');
+    if (badgesEl) badgesEl.innerHTML =
+      `<span class="badge ${p.isActive ? 'badge-success' : 'badge-danger'}">${p.isActive ? 'API On' : 'API Off'}</span>` +
+      `<span class="badge ${p.chromeRunning ? 'badge-info' : ''}">${p.chromeRunning ? 'Chrome On' : 'Chrome Off'}</span>`;
+    const statsEl = card.querySelector('.card-stats');
+    if (statsEl) statsEl.innerHTML =
+      stat('Tổng', s.total || 0) + stat('Đợi', s.waiting || 0) +
+      stat('Đang', s.running || 0) + stat('Đã đăng', s.completed || 0) +
+      stat('Lỗi', s.failed || 0);
+    const subtitleEl = card.querySelector('.card-subtitle');
+    if (subtitleEl) subtitleEl.textContent = p.channelTitle || p.channelId || 'Chưa có thông tin kênh';
+    const avatarEl = card.querySelector('.card-logo');
+    if (avatarEl && p.channelAvatar) avatarEl.src = p.channelAvatar;
+  });
 }
 function renderProfiles() {
   const root = $('profiles');
@@ -94,10 +131,8 @@ function renderProfiles() {
   if (emptyEl) emptyEl.classList.add('hidden');
   root.innerHTML = state.profiles.map((p) => {
     const s = p.stats || {};
-    const channels = p.channels || [];
-    const hasChannels = channels.length > 0;
     const avatarSrc = p.channelAvatar || 'assets/app-icon.jpg';
-    return `<article class="profile-card">
+    return `<article class="profile-card" data-pid="${p.id}">
       <div class="card-head">
         <img class="card-logo" src="${escapeHtml(avatarSrc)}" alt="" onerror="this.src='assets/app-icon.jpg'" />
         <div class="card-info">
@@ -269,10 +304,8 @@ function openProfileModal() {
   $('newProfileName').value = '';
   $('newProfileJson').value = '';
   $('profileModal').classList.remove('hidden');
-  setTimeout(() => {
-    const inp = $('newProfileName');
-    if (inp) inp.focus();
-  }, 150);
+  const _inp = $('newProfileName');
+  if (_inp) _inp.focus();
 }
 function editProfile(profileId) {
   const profile = state.profiles.find(p => p.id === profileId);
@@ -286,7 +319,7 @@ function editProfile(profileId) {
   $('newProfileJson').value = profile.jsonApiPath || '';
   $('profileModal').classList.remove('hidden');
 }
-function closeProfileModal() { state.editingProfileId = null; $('profileModal').classList.add('hidden'); }
+function closeProfileModal() { state.editingProfileId = null; $('profileModal').classList.add('hidden'); if (state.activeTab === 'channels') loadProfiles(); }
 async function pickProfileJson() { const jsonPath = await window.nativeApi.pickJson(); if (jsonPath) $('newProfileJson').value = jsonPath; }
 async function saveProfile(checkNow = false) {
   const name = val('newProfileName').trim();
@@ -532,6 +565,7 @@ loadProfiles();
 setInterval(() => {
   if (state.activeTab === 'channels') loadProfiles();
   else if (state.activeTab === 'report') loadReport();
+  else if (state.activeTab === 'settings') loadSettings();
 }, 8000);
 setInterval(refreshTaskStatusOnly, 3000);
 document.addEventListener('keydown', (e) => {

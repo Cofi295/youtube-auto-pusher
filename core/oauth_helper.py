@@ -83,7 +83,7 @@ class OAuthHelper:
         if creds and creds.expired and creds.refresh_token:
             try:
                 creds.refresh(Request())
-                token_path.write_text(creds.to_json())
+                token_path.write_text(creds.to_json(), encoding="utf-8")
                 return creds
             except Exception:
                 pass
@@ -124,7 +124,7 @@ class OAuthHelper:
             ) from ex
 
         token_path.parent.mkdir(parents=True, exist_ok=True)
-        token_path.write_text(creds.to_json())
+        token_path.write_text(creds.to_json(), encoding="utf-8")
 
         print(f"[OAuth] Auth thanh cong! Token luu tai: {token_path}")
         return creds
@@ -168,7 +168,7 @@ class OAuthHelper:
         """Extract client_id from a client_secret.json file."""
         try:
             if json_path.exists():
-                data = json.loads(json_path.read_text())
+                data = json.loads(json_path.read_text(encoding="utf-8"))
                 installed = data.get("installed", {}) or data.get("web", {})
                 return installed.get("client_id", "")
         except Exception:
@@ -197,7 +197,7 @@ class OAuthHelper:
                 print(f"[OAuth] '{json_path.name}' khong phai OAuth client_secret hop le. Force re-auth.")
             else:
                 try:
-                    token_data = json.loads(token_path.read_text())
+                    token_data = json.loads(token_path.read_text(encoding="utf-8"))
                     old_client_id = token_data.get("client_id", "")
                     if old_client_id and old_client_id != new_client_id:
                         token_path.unlink()

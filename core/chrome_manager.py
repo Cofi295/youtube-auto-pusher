@@ -299,7 +299,7 @@ class ChromeManager:
         }
         profile.cookies_export_path.parent.mkdir(parents=True, exist_ok=True)
         profile.cookies_export_path.write_text(
-            json.dumps(note, indent=2, ensure_ascii=False)
+            json.dumps(note, indent=2, ensure_ascii=False), encoding="utf-8"
         )
         return str(profile.cookies_export_path)
 

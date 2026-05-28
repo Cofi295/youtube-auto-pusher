@@ -47,7 +47,8 @@ function startApi() {
     cwd: api.cwd,
     env: {
       ...process.env,
-      PYTHONIOENCODING: 'utf-8',
+      PYTHONUTF8: '1',
+      PYTHONIOENCODING: 'utf-8:replace',
       YTAP_DATA_DIR: dataDir,
     },
     windowsHide: true,
