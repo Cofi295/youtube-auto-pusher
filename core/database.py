@@ -9,6 +9,7 @@ Nguyên tắc thiết kế:
   - Enum-style trạng thái Task qua STATUS_* constants.
 """
 import os
+import sys
 import json
 import shutil
 import datetime
@@ -29,8 +30,14 @@ from peewee import (
 # 1. DATABASE CONNECTION
 # ──────────────────────────────────────────
 
-# Data directory. In dev, use project root. In packaged builds, Electron sets YTAP_DATA_DIR.
-BASE_DIR = Path(os.environ.get("YTAP_DATA_DIR", Path(__file__).resolve().parent.parent))
+# Data directory. In dev, use project root.
+# In packaged PyInstaller builds, use the EXE's own directory.
+# The YTAP_DATA_DIR env var can always override both.
+if getattr(sys, 'frozen', False):
+    _default_dir = Path(sys.executable).resolve().parent
+else:
+    _default_dir = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(os.environ.get("YTAP_DATA_DIR", _default_dir))
 BASE_DIR.mkdir(parents=True, exist_ok=True)
 DB_PATH  = BASE_DIR / "openclaw_bridge.db"
 
@@ -400,6 +407,14 @@ class DatabaseManager:
             else:
                 _shutil.rmtree(str(profile.cache_dir), onerror=_onerror) if profile.cache_dir.exists() else None
                 _shutil.rmtree(str(profile.chrome_data_dir), onerror=_onerror) if profile.chrome_data_dir.exists() else None
+            # Xóa luôn thư mục cha profiles/{id}/ (config.json, cookies.json, ...)
+            profile_root = BASE_DIR / "profiles" / str(profile_id)
+            if profile_root.exists():
+                if hasattr(_shutil, 'onexc'):
+                    _shutil.rmtree(str(profile_root), onexc=_onerror)
+                else:
+                    _shutil.rmtree(str(profile_root), onerror=_onerror)
+                print(f"[DB] Đã xóa thư mục profile: {profile_root}")
             profile.delete_instance(recursive=True)
         except Profile.DoesNotExist:
             print(f"[DB] Profile {profile_id} không tồn tại.")
